@@ -6,7 +6,7 @@ Help to select a schema by "kind" key on cerberus.
 Installation
 ==============
 
-$ pip install cerberus_kind
+$ pip install cerberus-kind
 
 
 How To Use
