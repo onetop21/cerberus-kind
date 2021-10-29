@@ -16,7 +16,7 @@ on:
       repo:
         description: 'Pypi repository'     
         required: False
-        default: "https://test.pypi.org/legacy"
+        default: "https://test.pypi.org/legacy/"
 
 jobs:
   deploy:
