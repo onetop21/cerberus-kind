@@ -1,3 +1,5 @@
-from .validator import Validator
-
+try:
+    from .validator import Validator
+except:
+    ...
 __version__ = '0.0.1'
