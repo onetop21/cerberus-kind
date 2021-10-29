@@ -68,20 +68,22 @@ class Validator(cerberus.Validator):
                 self.schema = new_schema
                 self.document[field] = validator.document
                 return
+            _errors = validator._errors
             if not validator.errors.get('kind'):
-                _errors = validator._errors
+                break
         if _errors:
             def update_document_path(errors):
-                if isinstance(errors, dict):
+                if isinstance(errors, list):
                     for error in errors:
-                        error.document_path = (*self.document_path, field, *error.document_path)
+                        if field == '__root__':
+                            error.document_path = (*self.document_path, *error.document_path)
+                        else:
+                            error.document_path = (*self.document_path, field, *error.document_path)
                         if error.info:
                             for info in error.info:
                                 update_document_path(info)
             update_document_path(_errors)
             self._error(_errors)
-        else:
-            self._error(validator._errors)
 
     def normalized_by_order(self, document=None, schema=None, *args, **kwargs):
         return Validator(schema, _ordered=True).normalized(
