@@ -50,6 +50,7 @@ class Validator(cerberus.Validator):
     
     def _validate_selector(self, constraint, field, value):
         _errors = []
+        found_suitable_kind = False
         default_key = next(iter(constraint)).title()
         for k, v in reversed(constraint.items()):
             v['kind'] = {
@@ -71,6 +72,7 @@ class Validator(cerberus.Validator):
                 return
             _errors = validator._errors
             if not validator.errors.get('kind'):
+                found_suitable_kind = True
                 break
         if _errors:
             def update_document_path(errors):
@@ -83,6 +85,8 @@ class Validator(cerberus.Validator):
                         if error.info:
                             for info in error.info:
                                 update_document_path(info)
+            if not found_suitable_kind:
+                _errors = [_ for _ in _errors if 'kind' in _.document_path]
             update_document_path(_errors)
             self._error(_errors)
 
