@@ -2,4 +2,4 @@ try:
     from .validator import Validator
 except:
     ...
-__version__ = '0.0.3'
+__version__ = '0.0.4'

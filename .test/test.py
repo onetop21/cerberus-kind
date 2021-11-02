@@ -1,7 +1,16 @@
 # Test application
 import sys
 from cerberus_kind import Validator
-from pprint import pprint
+if sys.version_info.major >= 3 and sys.version_info.minor >= 8:
+    from pprint import pprint
+else:
+    def pprint(doc, sort_dicts=False):
+        if sort_dicts:
+            from pprint import pprint
+            pprint(doc)
+        else:
+            import json
+            print(json.dumps(doc, indent=2))
 
 schema = {'__root__': {'type': 'dict',
                        'selector': {'project': {'apiVersion': {'type': 'string',

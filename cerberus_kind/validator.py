@@ -1,6 +1,7 @@
 import warnings
 import cerberus
 import json
+from collections import OrderedDict
 warnings.simplefilter("ignore", UserWarning)
         
 class Validator(cerberus.Validator):
@@ -51,6 +52,7 @@ class Validator(cerberus.Validator):
     def _validate_selector(self, constraint, field, value):
         _errors = []
         found_suitable_kind = False
+        constraint = OrderedDict(constraint)
         default_key = next(iter(constraint)).title()
         for k, v in reversed(constraint.items()):
             v['kind'] = {
