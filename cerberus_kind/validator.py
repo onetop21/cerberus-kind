@@ -18,7 +18,6 @@ class Validator(cerberus.Validator):
         result = super(Validator, self).validate(document, schema, update, normalize)
         if self.document.get('__root__'):
             # Unwrap.
-            self.wrapped = self.document
             self.document = self.document['__root__']
             for e in self._errors:
                 e.schema_path = tuple(e.schema_path[1:])
@@ -29,22 +28,19 @@ class Validator(cerberus.Validator):
     def normalized(self, document=None, schema=None, *args, **kwargs):
         document = document or self.document
         schema = schema or self.schema
+        validator = Validator(schema, _ordered=self._ordered)
+        validator.validate(document, normalize=True)
+        normalized = validator.document
         if schema is not None:
             root_schema = schema.get('__root__', None)
             if root_schema:
-                document = {'__root__': document}
-        self.document = super(Validator, self).normalized(document, schema, *args, **kwargs)
+                normalized = {'__root__': normalized}
         if self.ordered:
-            self.document = dict(sorted(self.document.items(), key=lambda x: -1 if x[0] == 'kind' else schema[x[0]].get('order', float('inf')))) 
-        if self.document.get('__root__'):
+            normalized = OrderedDict(sorted(normalized.items(), key=lambda x: -1 if x[0] == 'kind' else schema[x[0]].get('order', float('inf')))) 
+        if normalized.get('__root__'):
             # Unwrap.
-            self.wrapped = self.document
-            self.document = self.document['__root__']
-            for e in self._errors:
-                e.schema_path = tuple(e.schema_path[1:])
-                if len(e.document_path) > 1:
-                    e.document_path = tuple(e.document_path[1:])
-        return self.document
+            normalized = normalized['__root__']
+        return normalized
 
     def _validate_order(self, constraint, field, value):
         '''For use YAML Editor'''
@@ -63,10 +59,9 @@ class Validator(cerberus.Validator):
                 'order': 0
             }
             sub_schema = json.loads(json.dumps(v))
-            #validator = Validator(sub_schema)
             validator = self.__class__(sub_schema)
             if validator.validate(value):
-                new_schema = dict(self.schema)
+                new_schema = json.loads(json.dumps(dict(self.schema)))
                 del new_schema[field]['selector']
                 new_schema[field]['schema'] = dict(validator.schema)
                 self.schema = new_schema
