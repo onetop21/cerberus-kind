@@ -28,7 +28,7 @@ class Validator(cerberus.Validator):
     def normalized(self, document=None, schema=None, *args, **kwargs):
         document = document or self.document
         schema = schema or self.schema
-        validator = Validator(schema, _ordered=self._ordered)
+        validator = self.__class__(schema, _ordered=self._ordered)
         validator.validate(document, normalize=True)
         normalized = validator.document
         if schema is not None:
@@ -88,7 +88,7 @@ class Validator(cerberus.Validator):
             self._error(_errors)
 
     def normalized_by_order(self, document=None, schema=None, *args, **kwargs):
-        return Validator(schema, _ordered=True).normalized(
+        return self.__class__(schema, _ordered=True).normalized(
             document or self.document, 
             schema or self.schema,
             *args, **kwargs)

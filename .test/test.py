@@ -21,6 +21,7 @@ schema = {
                     'type': 'string',
                     'required': True,
                     'empty': False,
+                    'description': 'Hello World',
                     'order': 1},
                 'version': {
                     'type': 'string',
@@ -82,17 +83,22 @@ document = {'name': 'Your Project',
             'app': {
                 'server': {
                     'kind': 'Service',
-                    'command': 'python server.py'},
+                    'command': 'python server.py'
+                    },
                 'client': {
                     'kind': 'Job',
                     'command': 'python client.py'}}}
+
+class ValidatorImpl(Validator):
+    def _validate_description(self, constraint, field, value):
+        '''For use YAML Editor'''
 
 if __name__ == '__main__':
     print("* Schema *")
     pprint(schema, sort_dicts=False)
     print("* Document *")
     pprint(document, sort_dicts=False)
-    v = Validator(schema)
+    v = ValidatorImpl(schema)
     if v.validate(document):
         print("[Verified]")
         pprint(v.normalized_by_order(document), sort_dicts=False)
