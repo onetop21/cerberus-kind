@@ -60,7 +60,7 @@ class Validator(cerberus.Validator):
             }
             sub_schema = json.loads(json.dumps(v))
             validator = self.__class__(sub_schema)
-            if validator.validate(value):
+            if validator.validate(value or {}):
                 new_schema = json.loads(json.dumps(dict(self.schema)))
                 del new_schema[field]['selector']
                 new_schema[field]['schema'] = dict(validator.schema)
