@@ -15,7 +15,7 @@ class Validator(cerberus.Validator):
             root_schema = schema.get('__root__', None)
             if root_schema:
                 document = {'__root__': document}
-        result = super(Validator, self).validate(document, schema, update, normalize)
+        result = super(Validator, self).validate(document or {}, schema, update, normalize)
         if self.document.get('__root__'):
             # Unwrap.
             self.document = self.document['__root__']
