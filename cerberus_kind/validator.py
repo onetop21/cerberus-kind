@@ -31,15 +31,14 @@ class Validator(cerberus.Validator):
         validator = self.__class__(schema, _ordered=self._ordered)
         validator.validate(document, normalize=True)
         normalized = validator.document
-        if schema is not None:
-            root_schema = schema.get('__root__', None)
-            if root_schema:
-                normalized = {'__root__': normalized}
         if self.ordered:
+            if schema is not None and schema.get('__root__'):
+                schema = schema['__root__']
+                if schema.get('schema'):
+                    schema = schema['schema']
+                elif schema.get('selector'):
+                    schema = schema['selector'][normalized['kind'].lower()]
             normalized = OrderedDict(sorted(normalized.items(), key=lambda x: -1 if x[0] == 'kind' else schema[x[0]].get('order', float('inf')))) 
-        if normalized.get('__root__'):
-            # Unwrap.
-            normalized = normalized['__root__']
         return normalized
 
     def _validate_order(self, constraint, field, value):
