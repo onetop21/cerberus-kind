@@ -36,6 +36,12 @@ schema = {
                                 'type': 'string',
                                 'regex': '(?:.+/)?([^:]+)(?::.+)?',
                                 'required': True},
+                            'preps': {
+                                'type': 'list',
+                                'schema': {
+                                    'type': 'dict'
+                                }
+                            },
                             'command': {
                                 'type': ['string', 'list']}},
                         'buildscript': {
@@ -79,7 +85,7 @@ schema = {
                     'order': 30}}}}}
 document = {'name': 'Your Project',
             'kind': 'Project',
-            'workspace': {'kind': 'Dockerfile', 'filePath': '.'},
+            'workspace': {'kind': 'Workspace', 'base': '.'},
             'app': {
                 'server': {
                     'kind': 'Service',
@@ -87,7 +93,8 @@ document = {'name': 'Your Project',
                     },
                 'client': {
                     'kind': 'Job',
-                    'command': 'python client.py'}}}
+                    'command': 'python client.py'}
+            }}
 
 class ValidatorImpl(Validator):
     def _validate_description(self, constraint, field, value):
