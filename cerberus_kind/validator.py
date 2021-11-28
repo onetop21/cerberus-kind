@@ -49,11 +49,12 @@ class Validator(cerberus.Validator):
         _errors = []
         found_suitable_kind = False
         constraint = OrderedDict(constraint)
+        default_key = next(iter(constraint)).title()
         for k, v in reversed(constraint.items()):
             v['kind'] = {
                 'type': 'string',
                 'allowed': [k.title()],
-                'required': True,
+                'default': default_key,
                 'order': 0
             }
             sub_schema = json.loads(json.dumps(v))
