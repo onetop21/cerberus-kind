@@ -12,11 +12,11 @@ class Validator(cerberus.Validator):
     def validate(self, document, schema=None, update=False, normalize=True):
         schema = schema or self.schema
         if schema is not None:
-            root_schema = schema.get('__root__', None)
+            root_schema = '__root__' in schema
             if root_schema:
                 document = {'__root__': document}
         result = super(Validator, self).validate(document or {}, schema, update, normalize)
-        if self.document.get('__root__'):
+        if '__root__' in self.document:
             # Unwrap.
             self.document = self.document['__root__']
             for e in self._errors:
@@ -31,12 +31,12 @@ class Validator(cerberus.Validator):
         validator = self.__class__(schema, _ordered=self._ordered)
         validator.validate(document, normalize=True)
         norm_doc = validator.document
-        if self.ordered:
-            if schema is not None and schema.get('__root__'):
+        if norm_doc and self.ordered:
+            if schema is not None and '__root__' in schema:
                 schema = schema['__root__']
                 if schema.get('selector'):
                     schema = schema['selector'][norm_doc['kind'].lower()]
-                elif schema.get('schema'):
+                elif schema.get('valuesrules'):
                     schema = dict([(key, schema['valuesrules']['schema']) for key in norm_doc])
                 else:
                     schema = schema['schema']
