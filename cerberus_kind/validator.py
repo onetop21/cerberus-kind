@@ -37,7 +37,7 @@ class Validator(cerberus.Validator):
                 if schema.get('selector'):
                     schema = schema['selector'][norm_doc['kind'].lower()]
                 elif schema.get('valuesrules'):
-                    schema = dict([(key, schema['valuesrules']['schema']) for key in norm_doc])
+                    schema = dict([(key, schema['valuesrules']) for key in norm_doc])
                 else:
                     schema = schema['schema']
             norm_doc = OrderedDict(sorted(norm_doc.items(), key=lambda x: -1 if x[0] == 'kind' else schema[x[0]].get('order', float('inf')))) 
