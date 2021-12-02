@@ -30,16 +30,18 @@ class Validator(cerberus.Validator):
         schema = schema or self.schema
         validator = self.__class__(schema, _ordered=self._ordered)
         validator.validate(document, normalize=True)
-        normalized = validator.document
+        norm_doc = validator.document
         if self.ordered:
             if schema is not None and schema.get('__root__'):
                 schema = schema['__root__']
-                if schema.get('schema'):
+                if schema.get('selector'):
+                    schema = schema['selector'][norm_doc['kind'].lower()]
+                elif schema.get('schema'):
+                    schema = dict([(key, schema['valuesrules']['schema']) for key in norm_doc])
+                else:
                     schema = schema['schema']
-                elif schema.get('selector'):
-                    schema = schema['selector'][normalized['kind'].lower()]
-            normalized = OrderedDict(sorted(normalized.items(), key=lambda x: -1 if x[0] == 'kind' else schema[x[0]].get('order', float('inf')))) 
-        return normalized
+            norm_doc = OrderedDict(sorted(norm_doc.items(), key=lambda x: -1 if x[0] == 'kind' else schema[x[0]].get('order', float('inf')))) 
+        return norm_doc
 
     def _validate_order(self, constraint, field, value):
         '''For use YAML Editor'''
