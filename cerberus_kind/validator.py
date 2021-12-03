@@ -7,7 +7,7 @@ warnings.simplefilter("ignore", UserWarning)
 class Validator(cerberus.Validator):
     def __init__(self, schema, *args, **kwargs):
         super().__init__(schema, *args, **kwargs)
-        self._ordered = kwargs.get('_ordered', False)
+        self._ordered = kwargs.get('ordered', False)
 
     def validate(self, document, schema=None, update=False, normalize=True):
         schema = schema or self.schema
@@ -28,7 +28,7 @@ class Validator(cerberus.Validator):
     def normalized(self, document=None, schema=None, *args, **kwargs):
         document = document or self.document
         schema = schema or self.schema
-        validator = self.__class__(schema, _ordered=self._ordered)
+        validator = self.__class__(schema, **self.rules_set)
         validator.validate(document, normalize=True)
         norm_doc = validator.document
         if norm_doc and self.ordered:
@@ -59,7 +59,7 @@ class Validator(cerberus.Validator):
                 'order': 0
             }
             sub_schema = json.loads(json.dumps(v))
-            validator = self.__class__(sub_schema)
+            validator = self.__class__(sub_schema, **self.rules_set)
             if validator.validate(value or {}):
                 new_schema = json.loads(json.dumps(dict(self.schema)))
                 del new_schema[field]['selector']
@@ -89,11 +89,23 @@ class Validator(cerberus.Validator):
             self._error(_errors)
 
     def normalized_by_order(self, document=None, schema=None, *args, **kwargs):
-        return self.__class__(schema, _ordered=True).normalized(
+        rules_set = self.rules_set
+        rules_set.update({'ordered': True})
+        return self.__class__(schema, **rules_set).normalized(
             document or self.document, 
             schema or self.schema,
             *args, **kwargs)
 
     @property
+    def rules_set(self):
+        rules = {
+            'ordered': self.ordered,
+            'allow_unknown': self.allow_unknown,
+            'purge_unknown': self.purge_unknown,
+            'require_all': self.require_all,
+        }
+        return rules
+
+    @property
     def ordered(self):
-        return self._ordered if hasattr(self, '_ordered') else False
+        return getattr(self, '_ordered', False)
