@@ -31,7 +31,7 @@ class Validator(cerberus.Validator):
         validator = self.__class__(schema, **self.rules_set)
         validator.validate(document, normalize=True)
         norm_doc = validator.document
-        if norm_doc and self.ordered:
+        if norm_doc and isinstance(norm_doc, dict) and self.ordered:
             if schema is not None and '__root__' in schema:
                 schema = schema['__root__']
                 if schema.get('selector'):
