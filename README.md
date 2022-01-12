@@ -1,6 +1,8 @@
 # cerberus-kind
 Help to select a schema by "kind" key on cerberus.
 
+[![Upload Python Package](https://github.com/onetop21/cerberus-kind/actions/workflows/python-publish.yml/badge.svg)](https://github.com/onetop21/cerberus-kind/actions/workflows/python-publish.yml)
+
 ## Installation
 ```bash
 $ pip install cerberus-kind
