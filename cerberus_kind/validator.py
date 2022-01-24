@@ -33,16 +33,20 @@ class Validator(cerberus.Validator):
         if schema and '__root__' in schema:
             document = {'__root__': document}
         for k, v in schema.items():
-            selector_schema = v.get('selector')
-            if selector_schema and len(selector_schema):
-                kind = document.get(k, {}).get('kind', '').lower()
-                if not kind in selector_schema:
-                    kind = next(iter(selector_schema))  # default schema
-                # Replace
-                v['schema']=v['selector'][kind]
-                del v['selector']
-                v['schema']['kind'] = kind_schema(kind)
-        result = super(Validator, self).normalized(document, schema, *args, **kwargs)
+            if isinstance(v, dict):
+                selector_schema = v.get('selector')
+                if selector_schema and len(selector_schema):
+                    kind = document.get(k, {}).get('kind', '').lower()
+                    if not kind in selector_schema:
+                        kind = next(iter(selector_schema))  # default schema
+                    # Replace
+                    v['schema']=v['selector'][kind]
+                    del v['selector']
+                    v['schema']['kind'] = kind_schema(kind)
+        try:
+            result = super(Validator, self).normalized(document, schema, *args, **kwargs)
+        except:
+            result = document
         if self._config.get('_ordered'):
             result = OrderedDict(sorted(result.items(), key=lambda x: self.schema.get(x[0],{}).get('order', float('inf')))) 
         if '__root__' in result:
