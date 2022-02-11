@@ -6,7 +6,7 @@ from .utils import kind_schema
 warnings.simplefilter("ignore", UserWarning)
 
 def deepcopy(val):
-    return json.loads(json.dumps(dict(val)))^M
+    return json.loads(json.dumps(dict(val)))
 
 # Way 1: using cerberus API
 class Validator(cerberus.Validator):
