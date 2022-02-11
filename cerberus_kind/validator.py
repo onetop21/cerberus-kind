@@ -1,10 +1,12 @@
 import warnings
 import cerberus
 import json
-import copy
 from collections import OrderedDict
 from .utils import kind_schema
 warnings.simplefilter("ignore", UserWarning)
+
+def deepcopy(val):
+    return json.loads(json.dumps(dict(val)))^M
 
 # Way 1: using cerberus API
 class Validator(cerberus.Validator):
@@ -29,7 +31,7 @@ class Validator(cerberus.Validator):
         if 'ordered' in kwargs: 
             self._config['_ordered'] = kwargs.get('ordered', False)
             del kwargs['ordered']
-        if not schema: schema = copy.deepcopy(self.schema)
+        if not schema: schema = deepcopy(self.schema)
         if schema and '__root__' in schema:
             document = {'__root__': document}
         for k, v in schema.items():
