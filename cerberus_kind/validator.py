@@ -1,16 +1,26 @@
 import warnings
 import cerberus
 import json
-import _pickle as pickle
 from collections import OrderedDict
 from .utils import kind_schema
 warnings.simplefilter("ignore", UserWarning)
 
 def deepcopy(val):
-    if isinstance(val, cerberus.schema.DefinitionSchema):
-        return pickle.loads(pickle.dumps(dict(val)))
-    else:
-        return pickle.loads(pickle.dumps(val))
+    # Need to optimize...
+    def traverse(val):
+        output = None
+        if isinstance(val, dict):
+            output = {}
+            for k, v in val.items():
+                output[k] = traverse(v)
+        elif isinstance(val, list):
+            output = []
+            for _ in val:
+                output.append(traverse(_))
+        else:
+            output = json.loads(json.dumps(val))
+        return output
+    return traverse(val)
 
 # Way 1: using cerberus API
 class Validator(cerberus.Validator):
@@ -35,7 +45,7 @@ class Validator(cerberus.Validator):
         if 'ordered' in kwargs: 
             self._config['_ordered'] = kwargs.get('ordered', False)
             del kwargs['ordered']
-        if not schema: schema = deepcopy(self.schema)
+        if not schema: schema = deepcopy(dict(self.schema))
         if schema and '__root__' in schema:
             document = {'__root__': document}
         for k, v in schema.items():
