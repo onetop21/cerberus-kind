@@ -1,12 +1,16 @@
 import warnings
 import cerberus
 import json
+import _pickle as pickle
 from collections import OrderedDict
 from .utils import kind_schema
 warnings.simplefilter("ignore", UserWarning)
 
 def deepcopy(val):
-    return json.loads(json.dumps(dict(val)))
+    if isinstance(val, cerberus.schema.DefinitionSchema):
+        return pickle.loads(pickle.dumps(dict(val)))
+    else:
+        return pickle.loads(pickle.dumps(val))
 
 # Way 1: using cerberus API
 class Validator(cerberus.Validator):
